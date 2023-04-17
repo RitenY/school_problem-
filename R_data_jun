@@ -1,0 +1,46 @@
+> data_jun <- read.csv("/Users/yumikomabuchi/Desktop/data_jun.csv")
+> s_data_jun <- data.frame(scale(data_jun))
+> head(s_data_jun)
+       year futoko_rate_jun stu_per_tch_jun classes_jun   rate_jun
+1 -1.649780       -1.804096        2.027172    1.157562 -1.4361575
+2 -1.539795       -1.668406        1.850299    1.157562 -1.2004414
+3 -1.429809       -1.577946        1.601367    1.157562 -0.9057962
+4 -1.319824       -1.487486        1.391739    1.157562 -0.3165059
+5 -1.209839       -1.374411        1.227968    1.157562 -0.0807898
+6 -1.099853       -1.114338        1.129705    1.157562 -0.0807898
+  rate_OII_jun rate_Lve_jun
+1   -0.9473208    -1.254678
+2   -0.9473208    -1.099305
+3   -0.6851159    -1.073409
+4   -0.9473208    -1.151096
+5   -0.9473208    -1.151096
+6   -1.0784232    -1.176991
+> 
+> 
+> result <- lm(futoko_rate_jun ~ stu_per_tch_jun + classes_jun + rate_jun + rate_OII_jun + rate_Lve_jun, data = s_data_jun)
+> summary(result)
+
+Call:
+lm(formula = futoko_rate_jun ~ stu_per_tch_jun + classes_jun + 
+    rate_jun + rate_OII_jun + rate_Lve_jun, data = s_data_jun)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-0.61844 -0.24343 -0.05555  0.21662  1.04434 
+
+Coefficients:
+                  Estimate Std. Error t value Pr(>|t|)   
+(Intercept)     -8.984e-16  6.716e-02   0.000  1.00000   
+stu_per_tch_jun -9.472e-01  4.951e-01  -1.913  0.06722 . 
+classes_jun      6.126e-02  9.486e-02   0.646  0.52429   
+rate_jun         1.829e-01  1.849e-01   0.989  0.33206   
+rate_OII_jun     7.269e-01  1.964e-01   3.702  0.00106 **
+rate_Lve_jun    -6.279e-01  6.007e-01  -1.045  0.30591   
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.3739 on 25 degrees of freedom
+Multiple R-squared:  0.8835,	Adjusted R-squared:  0.8602 
+F-statistic: 37.92 on 5 and 25 DF,  p-value: 6.897e-11
+
+> 
