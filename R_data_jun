@@ -1,5 +1,10 @@
+>　　#CSVファイルの読み込み
 > data_jun <- read.csv("/Users/yumikomabuchi/Desktop/data_jun.csv")
+>
+>　　#データの標準化
 > s_data_jun <- data.frame(scale(data_jun))
+>
+>　　#データの確認
 > head(s_data_jun)
        year futoko_rate_jun stu_per_tch_jun classes_jun   rate_jun
 1 -1.649780       -1.804096        2.027172    1.157562 -1.4361575
@@ -16,7 +21,7 @@
 5   -0.9473208    -1.151096
 6   -1.0784232    -1.176991
 > 
-> 
+> #回帰分析
 > result <- lm(futoko_rate_jun ~ stu_per_tch_jun + classes_jun + rate_jun + rate_OII_jun + rate_Lve_jun, data = s_data_jun)
 > summary(result)
 
@@ -42,5 +47,61 @@ Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’
 Residual standard error: 0.3739 on 25 degrees of freedom
 Multiple R-squared:  0.8835,	Adjusted R-squared:  0.8602 
 F-statistic: 37.92 on 5 and 25 DF,  p-value: 6.897e-11
+>
+>
+>　　#独立変数の95%信頼区間の確認
+> confint(lm(futoko_rate_jun ~ stu_per_tch_jun + classes_jun + rate_jun + rate_OII_jun + rate_Lve_jun, data = data_jun))
+                       2.5 %       97.5 %
+(Intercept)     -5.157088014 2.557373e+01
+stu_per_tch_jun -1.139461634 4.193100e-02
+classes_jun     -0.001351136 2.585565e-03
+rate_jun        -0.051561290 1.468594e-01
+rate_OII_jun    37.387338898 1.311698e+02
+rate_Lve_jun    -4.271463581 1.395428e+00
+>
+>
+> #多重共感性の確認のため、corとvifを実行
+> cor(data_jun)
+                      year futoko_rate_jun stu_per_tch_jun  classes_jun
+year             1.0000000      0.88378712      -0.9774514 -0.504308361
+futoko_rate_jun  0.8837871      1.00000000      -0.8889024 -0.471835006
+stu_per_tch_jun -0.9774514     -0.88890242       1.0000000  0.636383985
+classes_jun     -0.5043084     -0.47183501       0.6363840  1.000000000
+rate_jun        -0.3198536     -0.06745163       0.1807765  0.003827565
+rate_OII_jun     0.8988058      0.81713062      -0.8326911 -0.387997743
+rate_Lve_jun     0.9720643      0.81416155      -0.9420969 -0.559045432
+                    rate_jun rate_OII_jun rate_Lve_jun
+year            -0.319853597    0.8988058    0.9720643
+futoko_rate_jun -0.067451632    0.8171306    0.8141615
+stu_per_tch_jun  0.180776465   -0.8326911   -0.9420969
+classes_jun      0.003827565   -0.3879977   -0.5590454
+rate_jun         1.000000000   -0.5202247   -0.4759169
+rate_OII_jun    -0.520224678    1.0000000    0.9230713
+rate_Lve_jun    -0.475916924    0.9230713    1.0000000
+> 
+> 
+> #vifを実行するため、パッケージのインストール
+> install.packages("car")
+trying URL 'https://cran.rstudio.com/bin/macosx/big-sur-arm64/contrib/4.2/car_3.1-2.tgz'
+Content type 'application/x-gzip' length 1711690 bytes (1.6 MB)
+==================================================
+downloaded 1.6 MB
 
+
+The downloaded binary packages are in
+	/var/folders/_y/mvf875zn6psbpm9bp64z5yr80000gn/T//RtmpX1l6LV/downloaded_packages
+> 
+> 
+> #インストールしたパッケージの呼び出し
+> library(car)
+> 
+> 
+> #vifの実行
+> vif(lm(futoko_rate_jun ~ stu_per_tch_jun + classes_jun + rate_jun + rate_OII_jun + rate_Lve_jun, data = data_jun))
+stu_per_tch_jun     classes_jun        rate_jun    rate_OII_jun 
+      52.591917        1.931079        7.333334        8.274620 
+   rate_Lve_jun 
+      77.440528 
+> 
+> 
 > 
