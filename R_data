@@ -1,0 +1,84 @@
+> #CSVファイルの読み込み
+> data_jun <- read.csv("/data_jun.csv")
+> 
+> #データの確認
+> head(data_jun)
+  year futoko_rate_jun stu_per_tch_jun classes_jun rate_jun rate_OII_jun
+1 1991            1.04           18.08        3150      4.2        0.004
+2 1992            1.16           17.81        3150      5.0        0.004
+3 1993            1.24           17.43        3150      6.0        0.006
+4 1994            1.32           17.11        3150      8.0        0.004
+5 1995            1.42           16.86        3150      8.8        0.004
+6 1996            1.65           16.71        3150      8.8        0.003
+  rate_Lve_jun
+1         1.33
+2         1.39
+3         1.40
+4         1.37
+5         1.37
+6         1.36
+> 
+> #"year"は不要なので削除
+> data_jun_1 <- data_jun[,-1]
+> 
+> #データの標準化
+> s_data_jun <- data.frame(scale(data_jun_1))
+> 
+> #相関係数
+> cor(s_data_jun)
+                futoko_rate_jun stu_per_tch_jun  classes_jun     rate_jun
+futoko_rate_jun      1.00000000      -0.8901216 -0.476923144 -0.059723094
+stu_per_tch_jun     -0.89012158       1.0000000  0.636383985  0.180776465
+classes_jun         -0.47692314       0.6363840  1.000000000  0.003827565
+rate_jun            -0.05972309       0.1807765  0.003827565  1.000000000
+rate_OII_jun         0.81392211      -0.8326911 -0.387997743 -0.520224678
+rate_Lve_jun         0.81265308      -0.9420969 -0.559045432 -0.475916924
+                rate_OII_jun rate_Lve_jun
+futoko_rate_jun    0.8139221    0.8126531
+stu_per_tch_jun   -0.8326911   -0.9420969
+classes_jun       -0.3879977   -0.5590454
+rate_jun          -0.5202247   -0.4759169
+rate_OII_jun       1.0000000    0.9230713
+rate_Lve_jun       0.9230713    1.0000000
+> 
+> #多重共線性の確認
+> vif(lm(futoko_rate_jun ~ stu_per_tch_jun + classes_jun + rate_jun + rate_OII_jun + rate_Lve_jun, data = s_data_jun))
+stu_per_tch_jun     classes_jun        rate_jun    rate_OII_jun    rate_Lve_jun 
+      52.591917        1.931079        7.333334        8.274620       77.440528 
+>  
+> #多重共線性がありそうなので'rate_Lve_jun'を除く
+> s_data_jun_2 <- s_data_jun[,-6]
+> 
+> #再度多重共線性の確認
+> vif(lm(futoko_rate_jun ~ stu_per_tch_jun + classes_jun + rate_jun + rate_OII_jun, data = s_data_jun_2))
+stu_per_tch_jun     classes_jun        rate_jun    rate_OII_jun 
+       6.945564        1.914028        1.942463        6.740278
+> 
+> #特徴量を"stu_per_tch_jun", "classes_jun", "rate_jun", "rate_OII_jun"の4つにして重回帰分析
+> result <- lm(futoko_rate_jun ~ stu_per_tch_jun + classes_jun + rate_jun + rate_OII_jun, data = s_data_jun_2)
+> summary(result)
+
+Call:
+lm(formula = futoko_rate_jun ~ stu_per_tch_jun + classes_jun + 
+    rate_jun + rate_OII_jun, data = s_data_jun_2)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-0.54694 -0.24696 -0.04634  0.12607  1.12643 
+
+Coefficients:
+                  Estimate Std. Error t value Pr(>|t|)    
+(Intercept)     -6.677e-17  6.678e-02   0.000 1.000000    
+stu_per_tch_jun -4.676e-01  1.789e-01  -2.614 0.014697 *  
+classes_jun      6.544e-02  9.391e-02   0.697 0.492085    
+rate_jun         3.546e-01  9.461e-02   3.748 0.000898 ***
+rate_OII_jun     6.344e-01  1.762e-01   3.600 0.001315 ** 
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.3718 on 26 degrees of freedom
+Multiple R-squared:  0.8802,	Adjusted R-squared:  0.8618 
+F-statistic: 47.76 on 4 and 26 DF,  p-value: 1.303e-11
+
+> 
+> 
