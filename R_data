@@ -1,0 +1,67 @@
+> #csvファイルの読み込み
+> data_jun <- read.csv("/data_jun.csv")
+> 
+> #データの確認
+> head(data_jun)
+  year futoko_rate_jun stu_per_tch_jun classes_jun rate_jun
+1 1991            1.04           18.08        3150      4.2
+2 1992            1.16           17.81        3150      5.0
+3 1993            1.24           17.43        3150      6.0
+4 1994            1.32           17.11        3150      8.0
+5 1995            1.42           16.86        3150      8.8
+6 1996            1.65           16.71        3150      8.8
+  rate_OII_jun rate_Lve_jun
+1        0.004         1.33
+2        0.004         1.39
+3        0.006         1.40
+4        0.004         1.37
+5        0.004         1.37
+6        0.003         1.36
+> 
+> #"year"は不要なので削除
+> data_jun_1 <- data_jun[,-1]
+> 
+> #データの標準化
+> s_data_jun <- data.frame(scale(data_jun_1))
+> 
+> #多重共線性の確認
+> vif(lm(futoko_rate_jun ~ stu_per_tch_jun + classes_jun + rate_jun + rate_OII_jun + rate_Lve_jun, data = s_data_jun))
+stu_per_tch_jun     classes_jun        rate_jun    rate_OII_jun 
+      52.591917        1.931079        7.333334        8.274620 
+   rate_Lve_jun 
+      77.440528 
+> 
+> #多重共線性がありそうなので'rate_Lve_jun'を削除
+> s_data_jun_1 <- s_data_jun[,-6]
+> 
+> #再度多重共線性の確認
+> vif(lm(futoko_rate_jun ~ stu_per_tch_jun + classes_jun + rate_jun + rate_OII_jun, data = s_data_jun_1))
+stu_per_tch_jun     classes_jun        rate_jun    rate_OII_jun 
+       6.945564        1.914028        1.942463        6.740278 
+> 
+> #説明変数を"classes_jun^2", "rate_OII_jun"の2つにして重回帰分析
+> result <- lm(futoko_rate_jun ~ classes_jun^2 + rate_OII_jun, data = s_data_jun_1)
+> summary(result)
+
+Call:
+lm(formula = futoko_rate_jun ~ classes_jun^2 + rate_OII_jun, 
+    data = s_data_jun_1)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-0.89832 -0.46681 -0.02126  0.36521  0.98656 
+
+Coefficients:
+               Estimate Std. Error t value Pr(>|t|)    
+(Intercept)   5.940e-16  1.030e-01   0.000    1.000    
+classes_jun  -1.897e-01  1.136e-01  -1.670    0.106    
+rate_OII_jun  7.403e-01  1.136e-01   6.517 4.61e-07 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.5735 on 28 degrees of freedom
+Multiple R-squared:  0.693,	Adjusted R-squared:  0.6711 
+F-statistic: 31.61 on 2 and 28 DF,  p-value: 6.597e-08
+
+> 
+> 
