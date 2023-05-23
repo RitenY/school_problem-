@@ -1,0 +1,88 @@
+> #CSVファイルの読み込み
+> data_jun <- read.csv("/data_jun.csv")
+> head(data_jun)
+  year futoko_rate stu_per_tch classes pass_rate rate_OII rate_Lve
+1 1991        1.04       18.08    3150       4.2    0.004     1.33
+2 1992        1.16       17.81    3150       5.0    0.004     1.39
+3 1993        1.24       17.43    3150       6.0    0.006     1.40
+4 1994        1.32       17.11    3150       8.0    0.004     1.37
+5 1995        1.42       16.86    3150       8.8    0.004     1.37
+6 1996        1.65       16.71    3150       8.8    0.003     1.36
+> 
+> 
+> #データの標準化
+> s_data_jun <- data.frame(scale(data_jun))
+> head(s_data_jun)
+       year futoko_rate stu_per_tch  classes  pass_rate   rate_OII
+1 -1.649780   -1.804096    2.027172 1.157562 -1.4361575 -0.9473208
+2 -1.539795   -1.668406    1.850299 1.157562 -1.2004414 -0.9473208
+3 -1.429809   -1.577946    1.601367 1.157562 -0.9057962 -0.6851159
+4 -1.319824   -1.487486    1.391739 1.157562 -0.3165059 -0.9473208
+5 -1.209839   -1.374411    1.227968 1.157562 -0.0807898 -0.9473208
+6 -1.099853   -1.114338    1.129705 1.157562 -0.0807898 -1.0784232
+   rate_Lve
+1 -1.254678
+2 -1.099305
+3 -1.073409
+4 -1.151096
+5 -1.151096
+6 -1.176991
+> 
+> 
+> #重回帰分析
+> result <- lm(futoko_rate_jun ~ stu_per_tch_jun + classes_jun + rate_jun + rate_OII_jun + rate_Lve_jun, data = s_data_jun)
+Error in eval(predvars, data, env) : object 'futoko_rate_jun' not found
+> result <- lm(futoko_rate ~ stu_per_tch + classes + pass_rate + rate_OII + rate_Lve, data = s_data_jun)
+> summary(result)
+
+Call:
+lm(formula = futoko_rate ~ stu_per_tch + classes + pass_rate + 
+    rate_OII + rate_Lve, data = s_data_jun)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-0.61844 -0.24343 -0.05555  0.21662  1.04434 
+
+Coefficients:
+              Estimate Std. Error t value Pr(>|t|)   
+(Intercept) -8.984e-16  6.716e-02   0.000  1.00000   
+stu_per_tch -9.472e-01  4.951e-01  -1.913  0.06722 . 
+classes      6.126e-02  9.486e-02   0.646  0.52429   
+pass_rate    1.829e-01  1.849e-01   0.989  0.33206   
+rate_OII     7.269e-01  1.964e-01   3.702  0.00106 **
+rate_Lve    -6.279e-01  6.007e-01  -1.045  0.30591   
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.3739 on 25 degrees of freedom
+Multiple R-squared:  0.8835,	Adjusted R-squared:  0.8602 
+F-statistic: 37.92 on 5 and 25 DF,  p-value: 6.897e-11
+
+> 
+> 
+> #独立変数の95%信頼区間の確認
+> confint(lm(futoko_rate ~ stu_per_tch + classes + pass_rate + rate_OII + rate_Lve, data = s_data_jun))
+                 2.5 %     97.5 %
+(Intercept) -0.1383101 0.13831011
+stu_per_tch -1.9668403 0.07237767
+classes     -0.1341130 0.25664171
+pass_rate   -0.1978754 0.56359830
+rate_OII     0.3224639 1.13133290
+rate_Lve    -1.8651772 0.60932761
+> 
+> 
+> #多重共感性の確認のためvifを実行
+> #インストールしたパッケージの呼び出し
+> library(car)
+Loading required package: carData
+> vif(lm(futoko_rate ~ stu_per_tch + classes + pass_rate + rate_OII + rate_Lve, data = s_data_jun))
+stu_per_tch     classes   pass_rate    rate_OII    rate_Lve 
+  52.591917    1.931079    7.333334    8.274620   77.440528 
+> 
+> 
+> #rate_Lveを抜いて再度vifを実行
+> vif(lm(futoko_rate ~ stu_per_tch + classes + pass_rate + rate_OII, data = s_data_jun))
+stu_per_tch     classes   pass_rate    rate_OII 
+   6.945564    1.914028    1.942463    6.740278 
+> 
+>
