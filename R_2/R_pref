@@ -1,5 +1,5 @@
 > #csvファイルの読み込み
-> pref_all <- read.csv("/Users/yumikomabuchi/Desktop/pref_all.csv")
+> pref_all <- read.csv("/pref_all.csv")
 > head(pref_all)
   X     pref f_rate gaku life sports morals jison
 1 0 Hokkaido   3.39 65.0 5.10  40.70    4.9   5.1
